@@ -1,0 +1,908 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Organisasi & Arsitektur Komputer</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=DM+Sans:wght@300;400;500&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0a0f;
+    --surface: #12121a;
+    --surface2: #1a1a26;
+    --accent: #6c63ff;
+    --accent2: #ff6584;
+    --accent3: #43e97b;
+    --text: #e8e8f0;
+    --text-muted: #8888aa;
+    --border: #2a2a3d;
+    --gold: #f7c948;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    overflow-x: hidden;
+  }
+
+  /* ── NAV ─────────────────────────────────────── */
+  nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 999;
+    background: rgba(10,10,15,.85);
+    backdrop-filter: blur(16px);
+    border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 2rem; height: 60px;
+  }
+  .nav-logo {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.1rem; font-weight: 700;
+    color: var(--accent);
+    letter-spacing: .02em;
+  }
+  .nav-links {
+    display: flex; gap: .25rem;
+    list-style: none;
+  }
+  .nav-links a {
+    color: var(--text-muted);
+    text-decoration: none;
+    font-size: .8rem; font-weight: 500;
+    letter-spacing: .05em; text-transform: uppercase;
+    padding: .4rem .75rem;
+    border-radius: 6px;
+    transition: all .2s;
+  }
+  .nav-links a:hover, .nav-links a.active {
+    color: var(--text);
+    background: var(--surface2);
+  }
+
+  /* ── PAGES ───────────────────────────────────── */
+  .page { display: none; min-height: 100vh; padding-top: 60px; }
+  .page.active { display: block; animation: fadeIn .4s ease; }
+  @keyframes fadeIn { from { opacity:0; transform:translateY(12px); } to { opacity:1; transform:none; } }
+
+  /* ── HERO (Biografi) ─────────────────────────── */
+  .hero {
+    min-height: calc(100vh - 60px);
+    display: grid; grid-template-columns: 1fr 1fr;
+    align-items: center;
+    padding: 4rem 5vw;
+    gap: 4rem;
+    position: relative;
+    overflow: hidden;
+  }
+  .hero::before {
+    content: '';
+    position: absolute; inset: 0;
+    background:
+      radial-gradient(ellipse 60% 60% at 70% 50%, rgba(108,99,255,.12) 0%, transparent 70%),
+      radial-gradient(ellipse 40% 40% at 20% 80%, rgba(255,101,132,.08) 0%, transparent 60%);
+    pointer-events: none;
+  }
+  .hero-text h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(2.5rem, 5vw, 4.5rem);
+    font-weight: 900;
+    line-height: 1.05;
+    margin-bottom: 1rem;
+  }
+  .hero-text h1 span { color: var(--accent); }
+  .hero-text .subtitle {
+    font-size: 1.1rem; color: var(--text-muted);
+    margin-bottom: 2rem; line-height: 1.7;
+  }
+  .badge-row { display: flex; flex-wrap: wrap; gap: .5rem; margin-bottom: 2rem; }
+  .badge {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 100px;
+    padding: .3rem .9rem;
+    font-size: .78rem; color: var(--accent);
+    font-family: 'JetBrains Mono', monospace;
+  }
+  .hero-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 2.5rem;
+    position: relative;
+    overflow: hidden;
+  }
+  .hero-card::before {
+    content: '';
+    position: absolute; top: 0; left: 0; right: 0; height: 3px;
+    background: linear-gradient(90deg, var(--accent), var(--accent2));
+  }
+  .avatar {
+    width: 100px; height: 100px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    display: flex; align-items: center; justify-content: center;
+    font-size: 2.5rem;
+    margin-bottom: 1.5rem;
+    font-family: 'Playfair Display', serif;
+    font-weight: 900;
+    color: white;
+    box-shadow: 0 0 40px rgba(108,99,255,.4);
+  }
+  .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-top: 1.5rem; }
+  .info-item label {
+    display: block; font-size: .7rem;
+    text-transform: uppercase; letter-spacing: .1em;
+    color: var(--text-muted); margin-bottom: .25rem;
+  }
+  .info-item span { font-weight: 500; font-size: .92rem; }
+
+  /* ── SECTION WRAPPER ─────────────────────────── */
+  .section {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 5rem 2rem;
+  }
+  .section-header { margin-bottom: 3rem; }
+  .section-tag {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: .75rem; color: var(--accent);
+    letter-spacing: .15em; text-transform: uppercase;
+    margin-bottom: .5rem;
+    display: flex; align-items: center; gap: .5rem;
+  }
+  .section-tag::before {
+    content: '//';
+    color: var(--accent2);
+  }
+  .section-title {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(1.8rem, 3vw, 2.8rem);
+    font-weight: 700;
+    line-height: 1.2;
+  }
+  .divider {
+    height: 1px;
+    background: linear-gradient(90deg, var(--accent) 0%, transparent 60%);
+    margin: 1.5rem 0;
+  }
+
+  /* ── CARDS ───────────────────────────────────── */
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 2rem;
+    transition: border-color .2s, transform .2s;
+  }
+  .card:hover { border-color: var(--accent); transform: translateY(-3px); }
+  .card h3 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.2rem; margin-bottom: .75rem;
+    color: var(--gold);
+  }
+  .card p { color: var(--text-muted); line-height: 1.75; font-size: .92rem; }
+
+  .grid-2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px,1fr)); gap: 1.5rem; }
+  .grid-3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px,1fr)); gap: 1.25rem; }
+
+  /* ── DIAGRAM ─────────────────────────────────── */
+  .diagram-box {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 2.5rem;
+    margin: 2rem 0;
+    text-align: center;
+  }
+  .diagram-title {
+    font-size: .8rem;
+    text-transform: uppercase;
+    letter-spacing: .12em;
+    color: var(--text-muted);
+    margin-bottom: 2rem;
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  /* Top Level Computer */
+  .top-level {
+    display: flex; flex-direction: column; align-items: center; gap: .5rem;
+  }
+  .tl-cpu {
+    background: linear-gradient(135deg, var(--accent), #9b59b6);
+    border-radius: 12px; padding: 1.2rem 3rem;
+    font-weight: 700; font-size: 1rem;
+    box-shadow: 0 0 30px rgba(108,99,255,.4);
+  }
+  .tl-bus {
+    width: 4px; height: 40px;
+    background: linear-gradient(to bottom, var(--accent), var(--accent3));
+    border-radius: 2px;
+  }
+  .tl-row { display: flex; gap: 1rem; align-items: center; flex-wrap: wrap; justify-content: center; }
+  .tl-box {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: .8rem 1.4rem;
+    font-size: .85rem; font-weight: 500;
+    min-width: 120px; text-align: center;
+    position: relative;
+  }
+  .tl-box.mem { border-color: var(--accent3); color: var(--accent3); }
+  .tl-box.io  { border-color: var(--accent2); color: var(--accent2); }
+  .tl-hbus {
+    width: 200px; height: 3px;
+    background: linear-gradient(90deg, var(--accent3), var(--accent2));
+    border-radius: 2px;
+  }
+
+  /* CPU Diagram */
+  .cpu-diagram {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 1rem;
+    max-width: 700px; margin: 0 auto;
+  }
+  .cpu-block {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 1rem;
+    text-align: center;
+    font-size: .82rem;
+  }
+  .cpu-block.alu { border-color: var(--accent); background: rgba(108,99,255,.1); }
+  .cpu-block.cu  { border-color: var(--gold); background: rgba(247,201,72,.08); }
+  .cpu-block.reg { border-color: var(--accent3); background: rgba(67,233,123,.08); }
+  .cpu-block.bus-int { grid-column: 1/-1; border-color: var(--accent2); background: rgba(255,101,132,.06); font-size: .75rem; }
+  .cpu-block .block-icon { font-size: 1.6rem; margin-bottom: .4rem; }
+  .cpu-block .block-label { font-family: 'JetBrains Mono', monospace; font-size: .72rem; color: var(--text-muted); }
+
+  /* ── QA SECTION ──────────────────────────────── */
+  .qa-item {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    margin-bottom: 1.5rem;
+    overflow: hidden;
+  }
+  .qa-question {
+    background: var(--surface2);
+    padding: 1.25rem 1.75rem;
+    font-weight: 600;
+    display: flex; gap: 1rem; align-items: flex-start;
+    border-bottom: 1px solid var(--border);
+  }
+  .qa-num {
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    color: white;
+    border-radius: 50%;
+    width: 28px; height: 28px; min-width: 28px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: .78rem; font-weight: 700;
+    font-family: 'JetBrains Mono', monospace;
+  }
+  .qa-answer { padding: 1.75rem; color: var(--text-muted); line-height: 1.8; font-size: .92rem; }
+  .qa-answer strong { color: var(--text); }
+  .qa-answer .highlight {
+    background: rgba(108,99,255,.12);
+    border-left: 3px solid var(--accent);
+    padding: .75rem 1rem;
+    border-radius: 0 8px 8px 0;
+    margin: 1rem 0;
+    font-style: italic;
+    font-size: .88rem;
+  }
+  .qa-answer .ref {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: .73rem;
+    color: var(--accent3);
+    display: block;
+    margin-top: .5rem;
+  }
+
+  /* Inline diagram mini */
+  .mini-diagram {
+    display: flex; flex-direction: column; align-items: center;
+    gap: .4rem; margin: 1.5rem 0;
+  }
+  .md-box {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: .6rem 1.5rem;
+    font-size: .8rem;
+    font-family: 'JetBrains Mono', monospace;
+    min-width: 180px; text-align: center;
+  }
+  .md-box.accent { border-color: var(--accent); color: var(--accent); }
+  .md-box.gold   { border-color: var(--gold);   color: var(--gold); }
+  .md-box.green  { border-color: var(--accent3); color: var(--accent3); }
+  .md-box.red    { border-color: var(--accent2); color: var(--accent2); }
+  .md-arrow { color: var(--text-muted); font-size: .9rem; }
+
+  /* Memory compare */
+  .mem-compare {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;
+    margin: 1.5rem 0;
+  }
+  .mem-card {
+    border-radius: 10px; padding: 1.2rem;
+    border: 1px solid;
+  }
+  .mem-card.ram { border-color: var(--accent2); background: rgba(255,101,132,.06); }
+  .mem-card.rom { border-color: var(--accent3); background: rgba(67,233,123,.06); }
+  .mem-card h4 { margin-bottom: .5rem; font-size: .9rem; }
+  .mem-card ul { list-style: none; font-size: .82rem; color: var(--text-muted); }
+  .mem-card ul li::before { content: '▸ '; color: var(--accent); }
+
+  /* Operation cycle */
+  .cycle-flow {
+    display: flex; align-items: center; flex-wrap: wrap;
+    gap: .5rem; margin: 1.5rem 0; justify-content: center;
+  }
+  .cycle-step {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: .6rem 1rem;
+    font-size: .8rem;
+    font-family: 'JetBrains Mono', monospace;
+    text-align: center;
+  }
+  .cycle-step.highlight-s { border-color: var(--accent); color: var(--accent); }
+  .cycle-arrow { color: var(--accent); font-size: 1rem; }
+
+  /* ── FOOTER ──────────────────────────────────── */
+  footer {
+    border-top: 1px solid var(--border);
+    padding: 2rem;
+    text-align: center;
+    color: var(--text-muted);
+    font-size: .8rem;
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  /* ── RESPONSIVE ──────────────────────────────── */
+  @media(max-width:768px){
+    .hero { grid-template-columns:1fr; }
+    .cpu-diagram { grid-template-columns:1fr 1fr; }
+    .mem-compare { grid-template-columns:1fr; }
+    .nav-links { display:none; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ═══════════════ NAV ═══════════════ -->
+<nav>
+  <div class="nav-logo">CompArch.</div>
+  <ul class="nav-links">
+    <li><a href="#bio" class="active" id="nav-bio">Biografi</a></li>
+
+    <li><a href="#org" id="nav-org">Organisasi</a></li>
+
+    <li><a href="#cpu" id="nav-cpu">CPU & Memory</a></li>
+
+    <li><a href="#io"  id="nav-io">I/O</a></li>
+
+    <li><a href="#qa"  id="nav-qa">Jawaban</a></li>
+
+  </ul>
+</nav>
+
+<!-- ═══════════════ PAGE 1 — BIOGRAFI ═══════════════ -->
+<div class="page active" id="page-bio">
+  <div class="hero">
+    <div class="hero-text">
+      <h1>Halo, Saya<br><span>Mahasiswa</span><br>Informatika.</h1>
+      <p class="subtitle">Mahasiswa yang sedang mendalami Organisasi & Arsitektur Komputer — mempelajari cara kerja mesin dari tingkat paling dasar hingga sistem yang kompleks.</p>
+      <div class="badge-row">
+        <span class="badge">Sistem Komputer</span>
+        <span class="badge">Arsitektur Digital</span>
+        <span class="badge">CPU Design</span>
+        <span class="badge">Memory Hierarchy</span>
+      </div>
+    </div>
+    <div class="hero-card">
+      <div class="avatar">M</div>
+      <h2 style="font-family:'Playfair Display',serif;font-size:1.5rem;margin-bottom:.25rem;">Xelvin Andra Prasetya</h2>
+      <p style="color:var(--text-muted);font-size:.85rem;margin-bottom:1.5rem;">Sedikit Tentang Saya</p>
+      <div class="divider"></div>
+      <div class="info-grid">
+        <div class="info-item"><label>NIM</label><span>102250034</span></div>
+        <div class="info-item"><label>Program Studi</label><span>Informatika</span></div>
+        <div class="info-item"><label>Angkatan</label><span>2025</span></div>
+        <div class="info-item"><label>Mata Kuliah</label><span>Org. Komputer</span></div>
+        <div class="info-item"><label>Dosen</label><span>Bapak Arif Iman Anshori,S.kom, MMSI </span></div>
+        <div class="info-item"><label>Universitas</label><span>ITSNU PEKALONGAN</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-header">
+      <div class="section-tag">Latar Belakang</div>
+      <h2 class="section-title">Tentang Saya</h2>
+      <div class="divider"></div>
+    </div>
+    <div class="grid-2">
+      <div class="card">
+        <h3>Pendidikan</h3>
+        <p>Saat ini menempuh pendidikan di bidang Informatika. Mata kuliah Organisasi Komputer menjadi fondasi penting dalam memahami cara kerja hardware dan software secara terintegrasi.</p>
+      </div>
+      <div class="card">
+        <h3>Minat & Ketertarikan</h3>
+        <p>Tertarik pada bidang arsitektur komputer, sistem tertanam (embedded systems), serta pengembangan perangkat lunak tingkat rendah (low-level programming) yang berinteraksi langsung dengan hardware.</p>
+      </div>
+      <div class="card">
+        <h3>Tujuan Akademik</h3>
+        <p>Memahami secara mendalam bagaimana komputer bekerja dari perspektif hardware — mulai dari siklus instruksi CPU, manajemen memori, hingga komunikasi antar komponen melalui modul I/O.</p>
+      </div>
+      <div class="card">
+        <h3>Mata Kuliah Ini</h3>
+        <p>Organisasi & Arsitektur Komputer memberikan pemahaman tentang struktur internal komputer, perbedaan antara organisasi dan arsitektur, serta cara CPU, memory, dan I/O saling bekerja sama.</p>
+      </div>
+    </div>
+  </div>
+  <footer>© 2025 · Organisasi & Arsitektur Komputer · Dibuat dengan ♥</footer>
+</div>
+
+<!-- ═══════════════ PAGE 2 — ORGANISASI ═══════════════ -->
+<div class="page" id="page-org">
+  <div class="section">
+    <div class="section-header">
+      <div class="section-tag">Halaman 2</div>
+      <h2 class="section-title">Organisasi Komputer</h2>
+      <div class="divider"></div>
+      <p style="color:var(--text-muted);line-height:1.8;">Organisasi komputer mengacu pada unit operasional dan interkoneksi antar komponen yang mewujudkan spesifikasi arsitektur. Ini mencakup sinyal kontrol, antarmuka komputer-periferal, dan teknologi memori.</p>
+    </div>
+
+    <!-- Struktur Top Level -->
+    <div class="diagram-box">
+      <div class="diagram-title">// Struktur Top-Level Komputer</div>
+      <div class="top-level">
+        <div class="tl-cpu">CPU (Central Processing Unit)</div>
+        <div class="tl-bus"></div>
+        <div class="tl-row">
+          <div class="tl-box mem">Main Memory</div>
+          <div class="tl-hbus"></div>
+          <div class="tl-box io">I/O Module</div>
+        </div>
+        <div class="tl-bus" style="background:linear-gradient(to bottom,var(--accent2),var(--accent3))"></div>
+        <div class="tl-row">
+          <div class="tl-box" style="border-color:#888;color:#aaa">System Bus</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="grid-2" style="margin-top:2rem;">
+      <div class="card">
+        <h3>🧠 CPU</h3>
+        <p>Mengontrol operasi komputer dan melakukan pemrosesan data. Terdiri dari ALU (Arithmetic Logic Unit), Control Unit, dan Register. CPU mengambil instruksi dari memori, mengeksekusi instruksi tersebut, dan menyimpan hasilnya.</p>
+      </div>
+      <div class="card">
+        <h3>💾 Main Memory</h3>
+        <p>Menyimpan data dan instruksi yang sedang diproses CPU. Bersifat volatile (hilang saat listrik mati). Kapasitas lebih besar dari cache namun lebih lambat. Dihubungkan ke CPU via memory bus.</p>
+      </div>
+      <div class="card">
+        <h3>🔌 I/O Module</h3>
+        <p>Menjembatani komunikasi antara komputer dengan perangkat eksternal (keyboard, monitor, disk, printer). Mengelola transfer data antara perangkat I/O dengan memori atau CPU.</p>
+      </div>
+      <div class="card">
+        <h3>🚌 System Bus</h3>
+        <p>Media komunikasi yang menghubungkan CPU, memori, dan modul I/O. Terdiri dari Data Bus (transfer data), Address Bus (alamat memori), dan Control Bus (sinyal kontrol).</p>
+      </div>
+    </div>
+
+    <div class="section-header" style="margin-top:4rem;">
+      <div class="section-tag">Perbedaan Konsep</div>
+      <h2 class="section-title">Arsitektur vs Organisasi</h2>
+      <div class="divider"></div>
+    </div>
+    <div class="grid-2">
+      <div class="card" style="border-color:var(--accent);">
+        <h3 style="color:var(--accent);">🏛 Arsitektur Komputer</h3>
+        <p>Atribut yang <strong style="color:var(--text)">terlihat</strong> oleh programmer — set instruksi, jumlah bit, mekanisme I/O, teknik pengalamatan. Contoh: apakah ada instruksi perkalian dalam CPU. Bersifat <strong style="color:var(--text)">abstrak/logis</strong>.</p>
+      </div>
+      <div class="card" style="border-color:var(--gold);">
+        <h3 style="color:var(--gold);">⚙️ Organisasi Komputer</h3>
+        <p>Unit operasional dan interkoneksinya yang <strong style="color:var(--text)">mewujudkan</strong> arsitektur — sinyal kontrol, antarmuka periferal, teknologi memori. Contoh: bagaimana instruksi perkalian diimplementasikan. Bersifat <strong style="color:var(--text)">konkret/fisik</strong>.</p>
+      </div>
+    </div>
+  </div>
+  <footer>© 2025 · Organisasi & Arsitektur Komputer</footer>
+</div>
+
+<!-- ═══════════════ PAGE 3 — CPU & MEMORY ═══════════════ -->
+<div class="page" id="page-cpu">
+  <div class="section">
+    <div class="section-header">
+      <div class="section-tag">Halaman 3</div>
+      <h2 class="section-title">CPU & Memory</h2>
+      <div class="divider"></div>
+    </div>
+
+    <!-- CPU Diagram -->
+    <div class="diagram-box">
+      <div class="diagram-title">// Struktur Internal CPU</div>
+      <div class="cpu-diagram">
+        <div class="cpu-block cu">
+          <div class="block-icon">🎛️</div>
+          <strong>Control Unit</strong>
+          <div class="block-label">Sequencer & Decoder</div>
+        </div>
+        <div class="cpu-block alu">
+          <div class="block-icon">➕</div>
+          <strong>ALU</strong>
+          <div class="block-label">Arithmetic Logic Unit</div>
+        </div>
+        <div class="cpu-block reg">
+          <div class="block-icon">📦</div>
+          <strong>Registers</strong>
+          <div class="block-label">PC, IR, MAR, MBR, AC</div>
+        </div>
+        <div class="cpu-block bus-int">
+          <strong>Internal Bus (CPU Internal Data Path)</strong>
+          <div class="block-label">Menghubungkan semua komponen internal CPU</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="grid-3" style="margin-top:1.5rem;">
+      <div class="card">
+        <h3>🎛️ Control Unit (CU)</h3>
+        <p>Mengambil instruksi dari memori, men-decode instruksi tersebut, dan menghasilkan sinyal kontrol untuk mengkoordinasikan komponen CPU lainnya. Mengatur urutan eksekusi.</p>
+      </div>
+      <div class="card">
+        <h3>➕ ALU</h3>
+        <p>Melakukan semua operasi aritmatika (penjumlahan, pengurangan, perkalian, pembagian) dan operasi logika (AND, OR, NOT, XOR) terhadap data biner.</p>
+      </div>
+      <div class="card">
+        <h3>📦 Registers</h3>
+        <p><strong>PC</strong>: Program Counter — alamat instruksi berikutnya. <strong>IR</strong>: Instruction Register. <strong>MAR</strong>: Memory Address Register. <strong>MBR</strong>: Memory Buffer Register. <strong>AC</strong>: Accumulator.</p>
+      </div>
+    </div>
+
+    <div class="section-header" style="margin-top:4rem;">
+      <div class="section-tag">Memory Hierarchy</div>
+      <h2 class="section-title">RAM vs ROM</h2>
+      <div class="divider"></div>
+    </div>
+
+    <div class="mem-compare">
+      <div class="mem-card ram">
+        <h4 style="color:var(--accent2);">⚡ RAM — Volatile</h4>
+        <ul>
+          <li>Membutuhkan daya listrik untuk mempertahankan data</li>
+          <li>Data hilang saat listrik dimatikan</li>
+          <li>Digunakan untuk menyimpan data aktif & program yang sedang berjalan</li>
+          <li>Read & Write (baca & tulis)</li>
+          <li>Kecepatan tinggi, kapasitas besar</li>
+        </ul>
+      </div>
+      <div class="mem-card rom">
+        <h4 style="color:var(--accent3);">🔒 ROM — Non-Volatile</h4>
+        <ul>
+          <li>Data tersimpan secara permanen tanpa daya</li>
+          <li>Data tidak hilang saat listrik dimatikan</li>
+          <li>Digunakan untuk firmware & BIOS</li>
+          <li>Read Only (hanya baca) — ditulis saat pembuatan chip</li>
+          <li>Data tersimpan dalam struktur fisik chip</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+  <footer>© 2025 · Organisasi & Arsitektur Komputer</footer>
+</div>
+
+<!-- ═══════════════ PAGE 4 — I/O ═══════════════ -->
+<div class="page" id="page-io">
+  <div class="section">
+    <div class="section-header">
+      <div class="section-tag">Halaman 4</div>
+      <h2 class="section-title">Modul I/O</h2>
+      <div class="divider"></div>
+      <p style="color:var(--text-muted);line-height:1.8;">Modul I/O (Input/Output) adalah komponen yang menghubungkan CPU dan memori dengan perangkat eksternal. Ia bertindak sebagai perantara yang mengelola perbedaan kecepatan, format data, dan protokol komunikasi.</p>
+    </div>
+
+    <div class="diagram-box">
+      <div class="diagram-title">// Posisi Modul I/O dalam Sistem</div>
+      <div style="display:flex;align-items:center;justify-content:center;gap:1rem;flex-wrap:wrap;">
+        <div class="tl-box" style="border-color:var(--accent);color:var(--accent);">CPU</div>
+        <div style="color:var(--text-muted);font-family:'JetBrains Mono',monospace;font-size:.8rem;">←→ System Bus ←→</div>
+        <div class="tl-box" style="border-color:var(--gold);color:var(--gold);">I/O Module</div>
+        <div style="color:var(--text-muted);font-family:'JetBrains Mono',monospace;font-size:.8rem;">←→</div>
+        <div style="display:flex;flex-direction:column;gap:.5rem;">
+          <div class="tl-box io" style="font-size:.75rem;">Keyboard / Mouse</div>
+          <div class="tl-box io" style="font-size:.75rem;">Monitor / Printer</div>
+          <div class="tl-box io" style="font-size:.75rem;">Hard Disk / USB</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="grid-2" style="margin-top:2rem;">
+      <div class="card">
+        <h3>🔄 Sinkronisasi Kecepatan</h3>
+        <p>CPU bekerja jauh lebih cepat daripada perangkat I/O. Modul I/O menggunakan buffer dan mekanisme handshaking untuk menjembatani perbedaan kecepatan ini, sehingga CPU tidak perlu menunggu perangkat lambat.</p>
+      </div>
+      <div class="card">
+        <h3>📡 Konversi Format Data</h3>
+        <p>Mengubah format data antara representasi internal CPU (biner paralel) dan format yang digunakan perangkat eksternal (mis. serial untuk USB, format karakter untuk printer).</p>
+      </div>
+      <div class="card">
+        <h3>🚦 Deteksi Error</h3>
+        <p>Modul I/O dapat mendeteksi error pada data yang diterima dari perangkat eksternal dan melaporkannya ke CPU, menjamin integritas data dalam transfer.</p>
+      </div>
+      <div class="card">
+        <h3>⚡ DMA — Direct Memory Access</h3>
+        <p>Teknik di mana modul I/O dapat mentransfer data langsung ke/dari memori tanpa keterlibatan CPU setiap saat, membebaskan CPU untuk tugas lain dan meningkatkan efisiensi sistem secara keseluruhan.</p>
+      </div>
+      <div class="card">
+        <h3>🔔 Interrupt Handling</h3>
+        <p>Modul I/O mengirim sinyal interrupt ke CPU saat perangkat selesai melakukan tugasnya, sehingga CPU tidak perlu terus-menerus memeriksa (polling) status perangkat.</p>
+      </div>
+      <div class="card">
+        <h3>🛡️ Isolasi & Proteksi</h3>
+        <p>Memisahkan sistem bus internal (high-speed) dari perangkat eksternal yang lebih lambat dan rentan, melindungi CPU dari gangguan langsung perangkat eksternal.</p>
+      </div>
+    </div>
+  </div>
+  <footer>© 2025 · Organisasi & Arsitektur Komputer</footer>
+</div>
+
+<!-- ═══════════════ PAGE 5 — JAWABAN ═══════════════ -->
+<div class="page" id="page-qa">
+  <div class="section">
+    <div class="section-header">
+      <div class="section-tag">Jawaban Soal</div>
+      <h2 class="section-title">Pertanyaan & Jawaban</h2>
+      <div class="divider"></div>
+    </div>
+
+    <!-- Q1 -->
+    <div class="qa-item">
+      <div class="qa-question">
+        <span class="qa-num">1</span>
+        Apa yang melatarbelakangi perbedaan antara Organisasi Komputer dan Arsitektur Komputer?
+      </div>
+      <div class="qa-answer">
+        <p>Perbedaan antara <strong>Arsitektur Komputer</strong> dan <strong>Organisasi Komputer</strong> dilatarbelakangi oleh dua sudut pandang yang berbeda dalam memandang sebuah sistem komputer.</p>
+        <br>
+        <p><strong>Arsitektur Komputer</strong> merujuk pada atribut-atribut yang secara langsung terlihat dan relevan bagi programmer — meliputi set instruksi (ISA), jumlah bit yang digunakan untuk merepresentasikan data, mekanisme I/O, dan teknik pengalamatan memori. Arsitektur adalah "apa yang bisa dilakukan" sebuah komputer dari sisi logis/abstrak.</p>
+        <div class="highlight">
+          "Computer architecture refers to those attributes of a system visible to a programmer or those attributes that have a direct impact on the logical execution of a program." — William Stallings, <em>Computer Organization and Architecture</em>, 10th Edition, 2016.
+          <span class="ref">→ Referensi: Stallings, W. (2016). Computer Organization and Architecture, 10th Ed. Pearson.</span>
+        </div>
+        <p><strong>Organisasi Komputer</strong> merujuk pada unit operasional dan interkoneksi antar komponen yang mewujudkan spesifikasi arsitektur — meliputi sinyal kontrol, antarmuka periferal, dan teknologi memori yang digunakan. Organisasi adalah "bagaimana cara melakukannya" secara fisik/konkret.</p>
+        <br>
+        <p>Latar belakang perbedaan ini adalah kebutuhan praktis: banyak produsen menawarkan sekelompok model komputer dengan arsitektur yang sama tetapi organisasi yang berbeda-beda. Misalnya, processor Intel 64-bit memiliki arsitektur (ISA x86-64) yang sama, tetapi organisasi internal (implementasi fisik chip, jumlah cache, kecepatan bus) berbeda di setiap generasi produk.</p>
+        <span class="ref">→ Referensi: Patterson, D.A. & Hennessy, J.L. (2017). Computer Organization and Design RISC-V Edition. Morgan Kaufmann.</span>
+      </div>
+    </div>
+
+    <!-- Q2 -->
+    <div class="qa-item">
+      <div class="qa-question">
+        <span class="qa-num">2</span>
+        Gambarkan struktur top level komputer dan jelaskan masing-masing fungsinya!
+      </div>
+      <div class="qa-answer">
+        <div class="mini-diagram">
+          <div class="md-box accent">CPU (Central Processing Unit)</div>
+          <div class="md-arrow">↕ System Bus ↕</div>
+          <div style="display:flex;gap:1rem;flex-wrap:wrap;justify-content:center;">
+            <div class="md-box green">Main Memory</div>
+            <div class="md-box red">I/O Module</div>
+          </div>
+          <div class="md-arrow">↕</div>
+          <div class="md-box gold">Perangkat Eksternal (Disk, Keyboard, Monitor)</div>
+        </div>
+        <p><strong>CPU (Central Processing Unit):</strong> Otak komputer. Bertugas mengambil instruksi dari memori (fetch), menerjemahkan instruksi (decode), dan mengeksekusi instruksi (execute). CPU terdiri dari ALU, Control Unit, dan Register.</p>
+        <br>
+        <p><strong>Main Memory:</strong> Menyimpan program (kode instruksi) dan data yang sedang aktif diproses CPU. Bersifat volatile — data hilang saat komputer dimatikan. Kapasitas jauh lebih besar dari cache namun lebih lambat.</p>
+        <br>
+        <p><strong>I/O Module:</strong> Menghubungkan CPU dan memori dengan perangkat eksternal. Menangani perbedaan kecepatan, format data, dan protokol antar komponen. Mendukung mekanisme interrupt dan DMA.</p>
+        <br>
+        <p><strong>System Bus:</strong> Jalur komunikasi bersama yang menghubungkan CPU, memori, dan I/O. Terdiri dari Data Bus (membawa data), Address Bus (membawa alamat), dan Control Bus (membawa sinyal kontrol).</p>
+        <span class="ref">→ Referensi: Stallings, W. (2016). Computer Organization and Architecture, 10th Ed., Ch.1. Pearson.</span>
+      </div>
+    </div>
+
+    <!-- Q3 -->
+    <div class="qa-item">
+      <div class="qa-question">
+        <span class="qa-num">3</span>
+        Gambarkan struktur CPU dan jelaskan masing-masing fungsinya!
+      </div>
+      <div class="qa-answer">
+        <div style="background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:1.5rem;margin:1rem 0;text-align:center;">
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:.75rem;max-width:500px;margin:0 auto;">
+            <div style="background:rgba(247,201,72,.1);border:1px solid var(--gold);border-radius:8px;padding:.75rem;">
+              <div style="font-size:1.2rem;">🎛️</div>
+              <strong style="color:var(--gold);">Control Unit</strong>
+              <div style="font-size:.72rem;color:var(--text-muted);margin-top:.25rem;">Decoder · Sequencer · Timing</div>
+            </div>
+            <div style="background:rgba(108,99,255,.1);border:1px solid var(--accent);border-radius:8px;padding:.75rem;">
+              <div style="font-size:1.2rem;">➕</div>
+              <strong style="color:var(--accent);">ALU</strong>
+              <div style="font-size:.72rem;color:var(--text-muted);margin-top:.25rem;">Aritmatika · Logika · Perbandingan</div>
+            </div>
+            <div style="background:rgba(67,233,123,.1);border:1px solid var(--accent3);border-radius:8px;padding:.75rem;">
+              <div style="font-size:1.2rem;">📦</div>
+              <strong style="color:var(--accent3);">Registers</strong>
+              <div style="font-size:.72rem;color:var(--text-muted);margin-top:.25rem;">PC · IR · MAR · MBR · AC</div>
+            </div>
+            <div style="background:rgba(255,101,132,.1);border:1px solid var(--accent2);border-radius:8px;padding:.75rem;">
+              <div style="font-size:1.2rem;">🚌</div>
+              <strong style="color:var(--accent2);">Internal Bus</strong>
+              <div style="font-size:.72rem;color:var(--text-muted);margin-top:.25rem;">Interkoneksi internal CPU</div>
+            </div>
+          </div>
+        </div>
+        <p><strong>Control Unit (CU):</strong> Mengambil instruksi dari memori, men-decode instruksi, dan menghasilkan sinyal kontrol untuk mengarahkan komponen lain. Bertindak sebagai "konduktor orkestra" CPU.</p>
+        <br>
+        <p><strong>ALU (Arithmetic Logic Unit):</strong> Melaksanakan semua komputasi matematis dan logika. Operasi aritmatika: penjumlahan (+), pengurangan (-), perkalian (×), pembagian (÷). Operasi logika: AND, OR, NOT, XOR, pergeseran bit.</p>
+        <br>
+        <p><strong>Registers:</strong> Penyimpan sementara ultra-cepat di dalam CPU. <em>Program Counter (PC)</em>: menyimpan alamat instruksi berikutnya. <em>Instruction Register (IR)</em>: instruksi yang sedang dieksekusi. <em>Memory Address Register (MAR)</em>: alamat memori yang akan diakses. <em>Memory Buffer Register (MBR)</em>: data yang baru dibaca/ditulis dari memori. <em>Accumulator (AC)</em>: hasil operasi ALU.</p>
+        <br>
+        <p><strong>Internal Bus:</strong> Jalur data yang menghubungkan CU, ALU, dan register di dalam CPU, memungkinkan transfer data antar komponen internal secara cepat.</p>
+        <span class="ref">→ Referensi: Stallings, W. (2016). Computer Organization and Architecture, Ch.12. Pearson. | Tanenbaum, A.S. (2013). Structured Computer Organization, 6th Ed. Pearson.</span>
+      </div>
+    </div>
+
+    <!-- Q4 -->
+    <div class="qa-item">
+      <div class="qa-question">
+        <span class="qa-num">4</span>
+        Jelaskan kenapa RAM bersifat volatile sedangkan Read Only Memory (ROM) tidak?
+      </div>
+      <div class="qa-answer">
+        <p>Perbedaan sifat volatile/non-volatile antara RAM dan ROM disebabkan oleh <strong>teknologi penyimpanan fisik yang berbeda secara fundamental</strong>.</p>
+        <br>
+        <p><strong>RAM (Random Access Memory) — Volatile:</strong> RAM menggunakan kapasitor kecil (pada DRAM) atau flip-flop transistor (pada SRAM) untuk menyimpan setiap bit data. Kapasitor membutuhkan muatan listrik yang terus diperbarui (refresh) untuk mempertahankan nilai bit-nya. Ketika aliran listrik terputus, kapasitor kehilangan muatannya dalam hitungan milidetik, sehingga seluruh data hilang seketika. Inilah mengapa RAM bersifat <strong>volatile</strong>.</p>
+        <div class="highlight">
+          "DRAM stores data as electric charge on a capacitor. Since capacitors have a natural tendency to discharge, DRAM must be refreshed thousands of times per second to maintain its data." — Tanenbaum, A.S., <em>Structured Computer Organization</em>, 6th Ed., 2013.
+          <span class="ref">→ Referensi: Tanenbaum, A.S. (2013). Structured Computer Organization, 6th Ed. Pearson.</span>
+        </div>
+        <p><strong>ROM (Read Only Memory) — Non-Volatile:</strong> ROM menggunakan metode penyimpanan yang tidak bergantung pada aliran listrik. Pada mask ROM tradisional, data "dibakar" secara permanen ke dalam struktur transistor chip selama proses pembuatan (fabrikasi). Pada Flash ROM/EEPROM, data disimpan dalam floating-gate transistor yang mampu mempertahankan muatan elektron tanpa power selama bertahun-tahun, karena elektron terjebak dalam lapisan isolator yang mengelilingi gate.</p>
+        <br>
+        <p>Dengan kata lain: RAM menyimpan informasi melalui <em>kehadiran arus listrik aktif</em>, sedangkan ROM menyimpan informasi melalui <em>struktur fisik material semikonduktor</em> yang tidak memerlukan arus untuk mempertahankan data.</p>
+        <span class="ref">→ Referensi: Patterson, D.A. & Hennessy, J.L. (2017). Computer Organization and Design, 5th Ed., Appendix B. Morgan Kaufmann.</span>
+      </div>
+    </div>
+
+    <!-- Q5 -->
+    <div class="qa-item">
+      <div class="qa-question">
+        <span class="qa-num">5</span>
+        Jelaskan apa yang dimaksud operasi komputer? (sertakan gambar)
+      </div>
+      <div class="qa-answer">
+        <p><strong>Operasi komputer</strong> adalah serangkaian langkah dasar yang dilakukan CPU secara berulang untuk mengeksekusi setiap instruksi program. Siklus ini dikenal sebagai <strong>Instruction Cycle</strong> atau <strong>Fetch-Decode-Execute Cycle</strong>.</p>
+        <br>
+        <p>Berikut siklus operasi dasar komputer:</p>
+
+        <div class="cycle-flow">
+          <div class="cycle-step highlight-s">FETCH<br><span style="font-size:.65rem;color:var(--text-muted)">Ambil instruksi</span></div>
+          <div class="cycle-arrow">→</div>
+          <div class="cycle-step" style="border-color:var(--gold);color:var(--gold);">DECODE<br><span style="font-size:.65rem;color:var(--text-muted)">Terjemahkan</span></div>
+          <div class="cycle-arrow">→</div>
+          <div class="cycle-step" style="border-color:var(--accent3);color:var(--accent3);">FETCH OPERAND<br><span style="font-size:.65rem;color:var(--text-muted)">Ambil data</span></div>
+          <div class="cycle-arrow">→</div>
+          <div class="cycle-step" style="border-color:var(--accent2);color:var(--accent2);">EXECUTE<br><span style="font-size:.65rem;color:var(--text-muted)">Eksekusi</span></div>
+          <div class="cycle-arrow">→</div>
+          <div class="cycle-step" style="border-color:#888;color:#aaa;">STORE RESULT<br><span style="font-size:.65rem;color:var(--text-muted)">Simpan hasil</span></div>
+          <div class="cycle-arrow">→ 🔁</div>
+        </div>
+
+        <p><strong>1. Fetch (Pengambilan):</strong> CPU membaca instruksi dari alamat memori yang ditunjuk oleh Program Counter (PC), lalu menyimpannya di Instruction Register (IR). PC kemudian diinkrementasi untuk menunjuk instruksi berikutnya.</p>
+        <br>
+        <p><strong>2. Decode (Penerjemahan):</strong> Control Unit menganalisis kode instruksi di IR untuk menentukan operasi apa yang harus dilakukan dan operand mana yang diperlukan.</p>
+        <br>
+        <p><strong>3. Fetch Operand:</strong> Jika instruksi membutuhkan data dari memori, CPU mengambil data tersebut.</p>
+        <br>
+        <p><strong>4. Execute (Eksekusi):</strong> ALU atau unit lain melaksanakan operasi yang ditentukan instruksi — bisa berupa operasi aritmatika, transfer data, atau perubahan alur program.</p>
+        <br>
+        <p><strong>5. Store Result:</strong> Hasil operasi disimpan kembali ke register atau memori.</p>
+        <div class="highlight">
+          "The basic function performed by a computer is execution of a program, which consists of a set of instructions stored in memory. The processor does the actual work by executing instructions specified in the program." — Stallings, W., <em>Computer Organization and Architecture</em>, 10th Ed., 2016.
+          <span class="ref">→ Referensi: Stallings, W. (2016). Computer Organization and Architecture, 10th Ed., Ch.3. Pearson.</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Q6 -->
+    <div class="qa-item">
+      <div class="qa-question">
+        <span class="qa-num">6</span>
+        Apakah data Adobe Illustrator yang belum disimpan akan hilang di cache memory saat terjadi pemadaman listrik?
+      </div>
+      <div class="qa-answer">
+        <p><strong>Ya, data yang belum tersimpan tersebut akan hilang.</strong> Ini adalah konsekuensi langsung dari sifat <em>volatile</em> pada semua jenis memori yang digunakan untuk menyimpan data aktif selama program berjalan.</p>
+        <br>
+        <p><strong>Mengapa data hilang?</strong></p>
+        <br>
+        <p>Ketika kita membuat vektor di Adobe Illustrator, data gambar tersebut disimpan di <strong>RAM (Random Access Memory)</strong>. Cache memory (L1/L2/L3 cache di dalam CPU) hanya menyimpan salinan sementara dari data RAM yang paling sering diakses, untuk mempercepat akses CPU. Keduanya — RAM dan Cache — bersifat <strong>volatile</strong>.</p>
+        <div class="highlight">
+          "Cache memory is a small, fast memory that holds copies of the data from the most frequently used main memory locations. Cache is also volatile, meaning its contents are lost when power is removed." — Stallings, W., <em>Computer Organization and Architecture</em>, 10th Ed., 2016.
+          <span class="ref">→ Referensi: Stallings, W. (2016). Computer Organization and Architecture, 10th Ed., Ch.4. Pearson.</span>
+        </div>
+        <p>Ketika listrik padam secara tiba-tiba:</p>
+        <br>
+        <p>① Cache memory langsung kehilangan seluruh isinya karena tidak ada daya untuk refresh kapasitor.<br>② RAM pun sama — seluruh data gambar yang sedang dikerjakan langsung hilang.<br>③ Data hanya akan selamat jika sebelumnya sudah di-<em>save</em> ke <strong>storage non-volatile</strong> (HDD/SSD).</p>
+        <br>
+        <p><strong>Catatan penting:</strong> Beberapa aplikasi modern (termasuk Adobe Illustrator) memiliki fitur <em>Auto-Recovery</em> yang secara berkala menyimpan file pemulihan ke disk. Namun, jika fitur ini tidak aktif atau interval autosave-nya belum tercapai, data tetap akan hilang.</p>
+        <span class="ref">→ Referensi: Patterson, D.A. & Hennessy, J.L. (2017). Computer Organization and Design RISC-V Ed., Ch.5 Memory Hierarchy. Morgan Kaufmann.</span>
+      </div>
+    </div>
+
+    <!-- Q7 -->
+    <div class="qa-item">
+      <div class="qa-question">
+        <span class="qa-num">7</span>
+        Jelaskan fungsi modul I/O untuk mensinkronkan kerja masing-masing komponen komputer!
+      </div>
+      <div class="qa-answer">
+        <p>Salah satu tantangan terbesar dalam arsitektur komputer adalah bahwa setiap komponen bekerja dengan <strong>kecepatan yang sangat berbeda-beda</strong>. CPU bekerja dalam orde GHz (milyaran siklus per detik), RAM dalam orde puluhan MHz, sedangkan perangkat I/O seperti HDD atau jaringan bekerja jauh lebih lambat. <strong>Modul I/O hadir sebagai manajer sinkronisasi</strong> yang menjembatani perbedaan ini.</p>
+        <br>
+        <p><strong>Mekanisme sinkronisasi yang digunakan modul I/O:</strong></p>
+        <br>
+        <p><strong>1. Buffering:</strong> Modul I/O menyediakan area penyangga (buffer) yang menyimpan data sementara saat terjadi ketidaksesuaian kecepatan antara CPU dan perangkat. Saat CPU mengirim data ke printer, buffer menampung data tersebut sehingga CPU bisa langsung melanjutkan tugas lain tanpa menunggu printer selesai mencetak.</p>
+        <br>
+        <p><strong>2. Interrupt Mechanism:</strong> Daripada CPU terus-menerus memeriksa status perangkat I/O (polling yang boros waktu), modul I/O mengirimkan sinyal <em>interrupt</em> ke CPU ketika perangkat selesai melakukan tugasnya. CPU bisa mengerjakan hal lain dan bereaksi hanya saat diinterupsi.</p>
+        <div class="highlight">
+          "The I/O module can relieve the processor of the burden of checking on I/O status through the use of interrupts. The processor can continue executing instructions while the I/O module handles the I/O operation." — Stallings, W., <em>Computer Organization and Architecture</em>, 10th Ed., Ch.7.
+          <span class="ref">→ Referensi: Stallings, W. (2016). Computer Organization and Architecture, 10th Ed., Ch.7. Pearson.</span>
+        </div>
+        <p><strong>3. DMA (Direct Memory Access):</strong> Untuk transfer data besar (mis. membaca file dari disk), modul I/O dapat mengambil kendali System Bus dan mentransfer data langsung antara perangkat dan memori tanpa melibatkan CPU untuk setiap byte, kemudian menginterupsi CPU hanya setelah transfer selesai.</p>
+        <br>
+        <p><strong>4. Handshaking:</strong> Modul I/O mengimplementasikan protokol握手 (handshaking) antara perangkat dan sistem, memastikan kedua pihak siap sebelum transfer data dimulai, mencegah data hilang atau corrupt akibat timing yang tidak tepat.</p>
+        <br>
+        <p>Tanpa modul I/O sebagai sinkronisator, CPU harus menangani semua perbedaan kecepatan dan protokol secara langsung, yang akan sangat menurunkan performa dan kompleksitas sistem secara keseluruhan.</p>
+        <span class="ref">→ Referensi: Tanenbaum, A.S. (2013). Structured Computer Organization, 6th Ed., Ch.3. Pearson. | Stallings, W. (2016). Computer Organization and Architecture, 10th Ed., Ch.7.</span>
+      </div>
+    </div>
+
+  </div>
+  <footer>© 2025 · Organisasi & Arsitektur Komputer · Referensi: Stallings (2016), Patterson & Hennessy (2017), Tanenbaum (2013)</footer>
+</div>
+
+<script>
+  function show(page) {
+    const p = (page || '').toLowerCase().trim();
+    const pageEl = document.getElementById('page-' + p);
+    const navEl = document.getElementById('nav-' + p);
+    if (!pageEl) return;
+
+    document.querySelectorAll('.page').forEach(el => el.classList.remove('active'));
+    document.querySelectorAll('.nav-links a').forEach(el => el.classList.remove('active'));
+
+    pageEl.classList.add('active');
+    navEl?.classList.add('active');
+  }
+
+
+  function pageFromHash() {
+    const hash = (window.location.hash || '').replace('#', '').trim().toLowerCase();
+    if (!hash) return 'bio';
+    return hash;
+  }
+
+
+  document.addEventListener('DOMContentLoaded', function () {
+    const page = pageFromHash();
+    show(page);
+  });
+
+  window.addEventListener('hashchange', function () {
+    show(pageFromHash());
+  });
+
+</script>
+</body>
+</html>
